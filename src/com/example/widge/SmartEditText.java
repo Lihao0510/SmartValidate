@@ -51,7 +51,7 @@ public class SmartEditText extends EditText {
 			setHint("此选项为必填选项!");
 		}
 
-		setOnFocusChangeListener(new OnFocusChangeListener() {
+		this.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
@@ -80,6 +80,43 @@ public class SmartEditText extends EditText {
 				}
 			}
 		});
+	}
+	
+	public boolean addInputFinishListener(final InputFinishListener listener){
+		if(listener == null){
+			return false;
+		}
+		this.setOnFocusChangeListener(new OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (!hasFocus) {
+					String inputContent = ((EditText) v).getText().toString().trim();
+					if (inputContent.length() > 0) {
+						if (regexLine == null) {
+							setBackground(null);
+							listener.inputFinish(SmartEditText.this);
+						} else {
+							if (inputContent.matches(regexLine)) {
+								setBackground(null);
+								listener.inputFinish(SmartEditText.this);
+							} else {
+								setError(INPUT_WRONG);
+							}
+						}
+					} else {
+						if (canNullLine) {
+							setBackground(null);
+							listener.inputFinish(SmartEditText.this);
+						} else {
+							setError("此选项为必填选项!");
+						}
+					}
+				} else if (hasFocus) {
+					setBackground(null);
+				}
+			}
+		});
+		return true;
 	}
 	
 	public boolean validate() {
